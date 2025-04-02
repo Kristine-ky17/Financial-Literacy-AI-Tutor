@@ -1,6 +1,7 @@
 # Helper functions will be stored in this file
 import os
 import PyPDF2
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 def load_pdfs_from_folder(folder_path):
     texts = []
@@ -13,3 +14,13 @@ def load_pdfs_from_folder(folder_path):
                     text += page.extract_text() or ""
                 texts.append(text)
     return texts
+
+def chunk_texts(texts, chunk_size=500, overlap=50):
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=overlap
+    )
+    chunks = []
+    for text in texts:
+        chunks.extend(splitter.split_text(text))
+    return chunks

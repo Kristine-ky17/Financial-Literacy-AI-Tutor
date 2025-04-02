@@ -1,2 +1,10 @@
+#virtual env
+env/
+
+
+# dot env 
 RAG/.env
+
+
+# miscellaneous
 *.docx
