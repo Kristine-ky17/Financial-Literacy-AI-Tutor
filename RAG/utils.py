@@ -16,21 +16,17 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 #     return texts
 
 def load_text_from_pdf(filename):
-    texts = []
     with open(filename, "rb") as f:
         reader = PyPDF2.PdfReader(f)
         text = ""
         for page in reader.pages:
             text += page.extract_text() or ""
-        texts.append(text)
-    return texts
+    return text
 
-def chunk_texts(texts, chunk_size=500, overlap=50):
+def chunk_texts(text, chunk_size=500, overlap=50):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=overlap
     )
-    chunks = []
-    for text in texts:
-        chunks.extend(splitter.split_text(text))
+    chunks = splitter.split_text(text)
     return chunks
