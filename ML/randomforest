@@ -1,0 +1,58 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+# === Step 1: Load the data ===
+df = pd.read_csv("synthetic_data_all_stages.csv")
+
+# === Step 2: Combine prompt and generated_response ===
+df['prompt'] = df['prompt'].fillna('').astype(str)
+df['generated_response'] = df['generated_response'].fillna('').astype(str)
+df['full_text'] = (df['prompt'] + ' ' + df['generated_response']).str.strip()
+
+# === Step 3: Remove empty rows ===
+df = df[df['full_text'].str.strip() != '']
+df = df[df['stage'].notna()]  # remove rows with no stage
+
+# === Step 4: TF-IDF Vectorization ===
+vectorizer = TfidfVectorizer(stop_words='english', max_features=2000)
+X = vectorizer.fit_transform(df['full_text'])
+
+# === Step 5: Prepare labels ===
+y = df['stage']
+
+# === Step 6: Train/test split (NO STRATIFY) ===
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# === Step 7: Train Random Forest model ===
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train, y_train)
+
+# === Step 8: Predict + Evaluate ===
+y_pred = clf.predict(X_test)
+
+print("\n=== Classification Report ===\n")
+print(classification_report(y_test, y_pred, zero_division=0))
+
+
+# === Step 9: Confusion Matrix ===
+plt.figure(figsize=(12, 8))
+unique_labels = sorted(list(set(y_test) | set(y_pred)))
+
+cm = confusion_matrix(y_test, y_pred, labels=unique_labels)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+            xticklabels=unique_labels, yticklabels=unique_labels)
+
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+plt.tight_layout()
+plt.show()
