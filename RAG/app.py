@@ -8,7 +8,6 @@ from langchain.chains import RetrievalQA
 import json
 from pinecone import Pinecone
 
-# Load environment variables
 load_dotenv()
 
 topics = [
@@ -36,31 +35,9 @@ index = pc.Index(index_name)
 with open("news_sources.json") as f:
     metadata_lookup = json.load(f)
 
-# Set up embeddings and vectorstore (reuse your existing setup)
-# embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
-# Assume 'index' is already created and available
-# vectorstore = PineconeVectorStore(
-#     index=index,
-#     embedding=embeddings,
-# )
-
-# llm = ChatOpenAI(
-#     model_name="gpt-4o",
-#     temperature=0,
-#     openai_api_key=os.getenv("OPENAI_API_KEY")
-# )
-
-# qa_chain = RetrievalQA.from_chain_type(
-#     llm=llm,
-#     retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
-#     return_source_documents=True
-# )
-
 
 
 def answer_qn(namespace: str, question: str):
-
-    # Reconnect to Pinecone index
     vectorstore = PineconeVectorStore(
         index=index, embedding=OpenAIEmbeddings(), namespace=namespace
     )
@@ -98,8 +75,6 @@ def answer_qn(namespace: str, question: str):
         print(f"- {metadata_lookup.get(doc.metadata['source'])}")
 
 
-
-# Streamlit UI
 st.title("Finance Document Q&A")
 topics = [
     "economics",
@@ -126,22 +101,3 @@ user_question = st.text_input("Enter your question:")
 
 if selected_topic and user_question:
     answer_qn(selected_topic, user_question)
-# user_question = st.text_input("Ask a question about finance documents:")
-
-# selected_topic = st.selectbox(
-#     "Select a finance topic:",
-#     topics,
-#     index=None,
-#     placeholder="Choose a topic..."
-# )
-
-
-# if user_question:
-#     with st.spinner("Searching for the answer..."):
-#         response = qa_chain({"query": user_question})
-#         st.subheader("Answer:")
-#         st.write(response["result"])
-
-#         st.subheader("Sources used:")
-#         for doc in response["source_documents"]:
-#             st.write(f"- {metadata_lookup.get(doc.metadata['source'], doc.metadata['source'])}")
