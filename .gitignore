@@ -4,7 +4,7 @@ env/
 
 # dot env 
 RAG/.env
-
+ML/.env
 
 # miscellaneous
 *.docx
